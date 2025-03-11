@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 
-from app.movies_routes import MoviesResource
+from routes.favorites_routes import FavoriteMoviesResource
+from routes.movies_routes import MoviesResource
 
 
 def create_app():
@@ -9,5 +10,7 @@ def create_app():
     api = Api(app)
 
     api.add_resource(MoviesResource, "/movies/popular")
+    api.add_resource(FavoriteMoviesResource, "/movies/favorites/<int:movie_id>")
+    api.add_resource(FavoriteMoviesResource, "/movies/favorites", endpoint="favorites")
 
     return app
