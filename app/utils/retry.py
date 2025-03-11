@@ -1,4 +1,3 @@
-# app/utils/retry.py
 import sys
 
 import requests
@@ -7,7 +6,7 @@ from urllib3.util.retry import Retry
 
 
 def requests_retry_session(
-    retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None,
+    retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None
 ):
     session = session or requests.Session()
     retry = Retry(
