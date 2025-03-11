@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 
-from routes.favorites_routes import FavoriteMoviesResource
-from routes.movies_routes import MoviesResource
+from app.routes.favorites_routes import FavoriteMoviesResource
+from app.routes.movies_routes import MoviesResource
 
 
 def create_app():
