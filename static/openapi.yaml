@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  title: Favorite Movies API
+  version: 1.0.0
+paths:
+  /movies/favorites/{movie_id}:
+    post:
+      summary: Add a movie to favorites
+      tags:
+        - Favorites
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                release_date:
+                  type: string
+                  format: date
+                rating:
+                  type: integer
+                  default: 0
+      responses:
+        '200':
+          description: Movie added to favorites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      summary: Remove a movie from favorites
+      tags:
+        - Favorites
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Movie removed from favorites
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /movies/favorites:
+    get:
+      summary: Get sorted favorite movies
+      tags:
+        - Favorites
+      responses:
+        '200':
+          description: List of favorite movies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        movie_id:
+                          type: integer
+                        release_date:
+                          type: string
+                          format: date
+                        rating:
+                          type: integer
+    patch:
+      summary: Update the rating of a favorite movie
+      tags:
+        - Favorites
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+      responses:
+        '200':
+          description: Rating updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Rating not provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /admin/users/{user_id}/favorites:
+    delete:
+      summary: Remove all favorites for a user
+      tags:
+        - Admin
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: All favorites removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
