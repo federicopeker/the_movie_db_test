@@ -10,7 +10,7 @@ def create_app():
     api = Api(app)
 
     api.add_resource(MoviesResource, "/movies/popular")
-    api.add_resource(FavoriteMoviesResource, "/movies/favorites/<int:movie_id>")
     api.add_resource(FavoriteMoviesResource, "/movies/favorites", endpoint="favorites")
+    api.add_resource(FavoriteMoviesResource, "/movies/favorites/<int:movie_id>")
 
     return app
