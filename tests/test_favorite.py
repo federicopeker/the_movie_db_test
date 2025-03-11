@@ -1,3 +1,5 @@
+from app.utils.cache import redis_client
+
 USER_TOKEN = "1234567890"
 ADMIN_TOKEN = "abcdef1234567890"
 
@@ -64,3 +66,28 @@ def test_remove_all_favorites(client):
     )
     assert response.status_code == 200
     assert response.json == {"message": "All favorites for user 2 removed"}
+
+
+def test_get_favorites_with_cache(client):
+    # Clear the cache before the test
+    redis_client.flushall()
+    client.post(
+        "/movies/favorites/10",
+        json={"release_date": "2022-01-01"},
+        headers={"Authorization": f"Bearer {USER_TOKEN}"},
+    )
+    # First request to populate the cache
+    response = client.get(
+        "/movies/favorites", headers={"Authorization": f"Bearer {USER_TOKEN}"}
+    )
+    assert response.status_code == 200
+    assert "result" in response.json.keys()
+    assert isinstance(response.json["result"], list)
+
+    # Second request should hit the cache
+    response = client.get(
+        "/movies/favorites", headers={"Authorization": f"Bearer {USER_TOKEN}"}
+    )
+    assert response.status_code == 200
+    assert "result" in response.json.keys()
+    assert isinstance(response.json["result"], list)

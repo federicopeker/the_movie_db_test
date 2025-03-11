@@ -1,6 +1,5 @@
-import requests
-
 from app.config import Config
+from app.utils.retry import make_request_with_retry
 
 
 class MovieService:
@@ -8,8 +7,10 @@ class MovieService:
 
     @staticmethod
     def get_popular_movies():
-        response = requests.get(
-            f"{MovieService.BASE_URL}/movie/popular", params={"api_key": Config.API_KEY}
+        response = make_request_with_retry(
+            url=f"{MovieService.BASE_URL}/movie/popular",
+            method="GET",
+            params={"api_key": Config.API_KEY},
         )
         response.raise_for_status()
         return response.json()

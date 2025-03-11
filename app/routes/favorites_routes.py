@@ -3,6 +3,7 @@ from flask_restful import Resource
 
 from app.models.favorite import FavoriteMoviesDB
 from app.utils.auth import token_required
+from app.utils.cache import cache_response, get_cached_response
 
 
 class FavoriteMoviesResource(Resource):
@@ -23,7 +24,14 @@ class FavoriteMoviesResource(Resource):
 
     @token_required("USER")
     def get(self, current_user):
+        cache_key = f"favorites_{current_user['id']}"
+        cached_response = get_cached_response(cache_key)
+        if cached_response:
+            return jsonify({"result": cached_response})
+
         sorted_favorites = FavoriteMoviesDB.get_favorites(current_user["id"])
+        if sorted_favorites:
+            cache_response(cache_key, sorted_favorites)
         return jsonify({"result": sorted_favorites})
 
     @token_required("USER")
