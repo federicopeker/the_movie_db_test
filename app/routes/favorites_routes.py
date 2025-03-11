@@ -36,3 +36,10 @@ class FavoriteMoviesResource(Resource):
                 {"message": f"Rating for movie {movie_id} updated to {new_rating}"}
             )
         return {"error": "Rating not provided"}, 400
+
+
+class AdminFavoriteMoviesResource(Resource):
+    @token_required("ADMIN")
+    def delete(self, current_user, user_id):
+        FavoriteMoviesDB.remove_all_favorites(user_id)
+        return jsonify({"message": f"All favorites for user {user_id} removed"})

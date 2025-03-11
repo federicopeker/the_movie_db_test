@@ -1,4 +1,5 @@
 USER_TOKEN = "1234567890"
+ADMIN_TOKEN = "abcdef1234567890"
 
 
 def test_add_favorite(client):
@@ -49,3 +50,17 @@ def test_update_favorite_without_rating(client):
     )
     assert response.status_code == 400
     assert response.json == {"error": "Rating not provided"}
+
+
+def test_remove_all_favorites(client):
+    client.post(
+        "/movies/favorites/10",
+        json={"release_date": "2022-01-01"},
+        headers={"Authorization": f"Bearer {USER_TOKEN}"},
+    )
+
+    response = client.delete(
+        "/admin/users/2/favorites", headers={"Authorization": f"Bearer {ADMIN_TOKEN}"}
+    )
+    assert response.status_code == 200
+    assert response.json == {"message": "All favorites for user 2 removed"}
