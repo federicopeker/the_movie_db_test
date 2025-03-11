@@ -1,13 +1,4 @@
-import pytest
-
-from app import create_app
-
-
-@pytest.fixture
-def client():
-    app = create_app()
-    app.config["TESTING"] = True
-    return app.test_client()
+from app.config import Config
 
 
 def test_auth_required(client):
@@ -22,3 +13,29 @@ def test_auth_invalid_token(client):
     )
     assert response.status_code == 403
     assert response.json == {"error": "Invalid token"}
+
+
+def test_valid_token_returns_200(client):
+    response = client.get(
+        "/movies/favorites", headers={"Authorization": "Bearer 1234567890"}
+    )
+    assert response.status_code == 200
+    assert "result" in response.json.keys()
+
+
+def test_unauthorized_role_returns_403(client):
+    response = client.get(
+        "/movies/favorites", headers={"Authorization": "Bearer unauthorized_token"}
+    )
+    assert response.status_code == 403
+    assert response.json == {"error": "Invalid token"}
+
+
+def test_valid_token_without_role_returns_403(client):
+    USER_TOKEN = "1234567890withoutrole"
+    Config.ACCESS_TOKENS.update({USER_TOKEN: {"id": 3, "role": None}})
+    response = client.get(
+        "/movies/favorites", headers={"Authorization": f"Bearer {USER_TOKEN}"}
+    )
+    assert response.status_code == 403
+    assert response.json == {"error": "Unauthorized"}

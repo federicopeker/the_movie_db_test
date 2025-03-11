@@ -24,8 +24,6 @@ def token_required(role=None):
 
             if args and hasattr(args[0], "__class__"):
                 return f(args[0], user, *args[1:], **kwargs)
-            else:
-                return f(user, *args, **kwargs)
 
         return decorated_function
 
