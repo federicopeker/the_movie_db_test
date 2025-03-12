@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource
 
-from app.models.favorite import FavoriteMoviesDB
+from app.services.favorite_service import FavoriteService
 from app.utils.auth import token_required
 from app.utils.cache import Cache
 
@@ -12,14 +12,12 @@ class FavoriteMoviesResource(Resource):
         data = request.get_json()
         release_date = data.get("release_date")
         rating = data.get("rating", 0)
-        FavoriteMoviesDB.add_favorite(
-            current_user["id"], movie_id, release_date, rating
-        )
+        FavoriteService.add_favorite(current_user["id"], movie_id, release_date, rating)
         return jsonify({"message": f"Movie {movie_id} added to favorites"})
 
     @token_required("USER")
     def delete(self, current_user, movie_id):
-        FavoriteMoviesDB.remove_favorite(current_user["id"], movie_id)
+        FavoriteService.remove_favorite(current_user["id"], movie_id)
         return jsonify({"message": f"Movie {movie_id} removed from favorites"})
 
     @token_required("USER")
@@ -30,7 +28,7 @@ class FavoriteMoviesResource(Resource):
         if cached_response:
             return jsonify({"result": cached_response})
 
-        sorted_favorites = FavoriteMoviesDB.get_favorites(current_user["id"])
+        sorted_favorites = FavoriteService.get_favorites(current_user["id"])
         if sorted_favorites:
             cache.cache_response(cache_key, sorted_favorites)
         return jsonify({"result": sorted_favorites})
@@ -40,7 +38,7 @@ class FavoriteMoviesResource(Resource):
         data = request.get_json()
         new_rating = data.get("rating")
         if new_rating is not None:
-            FavoriteMoviesDB.update_rating(current_user["id"], movie_id, new_rating)
+            FavoriteService.update_rating(current_user["id"], movie_id, new_rating)
             return jsonify(
                 {"message": f"Rating for movie {movie_id} updated to {new_rating}"}
             )
@@ -50,5 +48,5 @@ class FavoriteMoviesResource(Resource):
 class AdminFavoriteMoviesResource(Resource):
     @token_required("ADMIN")
     def delete(self, current_user, user_id):
-        FavoriteMoviesDB.remove_all_favorites(user_id)
+        FavoriteService.remove_all_favorites(user_id)
         return jsonify({"message": f"All favorites for user {user_id} removed"})

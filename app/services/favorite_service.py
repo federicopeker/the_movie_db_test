@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
 
-class FavoriteMoviesDB:
+class FavoriteService:
     _favorites: Dict[int, List[Tuple[int, str, int]]] = {}
 
     @classmethod
