@@ -1,8 +1,15 @@
 import os
 
+from flask import send_from_directory
+
 from app import create_app
 
 app = create_app()
+
+
+@app.route("/static/<path:path>")
+def send_static(path):
+    return send_from_directory("../static", path)
 
 
 if __name__ == "__main__":

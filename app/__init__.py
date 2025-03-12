@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory
+from flask import Flask
 from flask_restful import Api
 from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -27,9 +27,5 @@ def create_app():
     )
 
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
-    @app.route("/static/<path:path>")
-    def send_static(path):
-        return send_from_directory("../static", path)
 
     return app
