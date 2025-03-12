@@ -1,23 +1,8 @@
 import os
 
-from flask import Flask, send_from_directory
-from flask_swagger_ui import get_swaggerui_blueprint
+from app import create_app
 
-app = Flask(__name__)
-
-SWAGGER_URL = "/api/docs"
-API_URL = "/static/openapi.yaml"
-
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL, API_URL, config={"app_name": "Favorite Movies API"}
-)
-
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
-
-@app.route("/static/<path:path>")
-def send_static(path):
-    return send_from_directory("static", path)
+app = create_app()
 
 
 if __name__ == "__main__":
