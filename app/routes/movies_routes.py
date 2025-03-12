@@ -1,6 +1,6 @@
 from flask_restful import Resource
 
-from app.services.movie_service import MovieService
+from app.adapters.movie_service import MovieService
 
 
 class MoviesResource(Resource):
