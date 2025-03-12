@@ -25,7 +25,7 @@ def clear_cache(redis_client):
 def test_add_favorite(client):
     response = client.post(
         f"{FAVORITES_URL}/10",
-        json={"release_date": "2022-01-01"},
+        json={"release_date": "2022-01-01", "title": "Test Movie", "movie_id": 10},
         headers=HEADERS_USER,
     )
     assert response.status_code == 200

@@ -24,9 +24,11 @@ paths:
                 release_date:
                   type: string
                   format: date
-                rating:
+                movie_id:
                   type: integer
                   default: 0
+                title:
+                  type: string
       responses:
         '200':
           description: Movie added to favorites

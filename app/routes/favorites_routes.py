@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource
 
+from app.models.movie import Movie
 from app.services.favorite_service import FavoriteService
 from app.utils.auth import token_required
 from app.utils.cache import Cache
@@ -11,8 +12,11 @@ class FavoriteMoviesResource(Resource):
     def post(self, current_user, movie_id):
         data = request.get_json()
         release_date = data.get("release_date")
-        rating = data.get("rating", 0)
-        FavoriteService.add_favorite(current_user["id"], movie_id, release_date, rating)
+        movie_id = data.get("movie_id")
+        title = data.get("title")
+        movie = Movie(movie_id, title, release_date, 0)
+
+        FavoriteService.add_favorite(current_user["id"], movie)
         return jsonify({"message": f"Movie {movie_id} added to favorites"})
 
     @token_required("USER")
