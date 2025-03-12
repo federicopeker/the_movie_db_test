@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from app.models.movie import Movie
 
@@ -23,10 +23,28 @@ class FavoriteService:
 
     @classmethod
     def get_favorites(cls, user_id: int) -> List[Dict[str, str | int]]:
-        """Returns all favorite movies for a user, sorted by release date and rating."""
+        """Returns all favorite movies for a user, sorted by specified fields."""
+        return [fav.to_dict() for fav in cls._favorites.get(user_id, [])]
+
+    @classmethod
+    def get_favorites_sorted(
+        cls, user_id: int, sort_by: [List[str]]
+    ) -> List[Dict[str, Union[str, int]]]:
+        """Returns all favorite movies for a user, sorted by specified fields.
+
+        Args:
+            user_id: ID of the user to get favorites for
+            sort_by: Fields to sort by
+
+        Returns:
+            List of sorted favorite movies as dictionaries
+        """
+        sort_fields = sort_by or ["release_date", "rating"]
+
+        favorites = cls.get_favorites(user_id)
+
         return sorted(
-            [fav.to_dict() for fav in cls._favorites.get(user_id, [])],
-            key=lambda x: (x["release_date"], x["rating"]),
+            favorites, key=lambda x: tuple(x[field] for field in sort_fields),
         )
 
     @classmethod

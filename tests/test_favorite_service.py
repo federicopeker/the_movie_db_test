@@ -45,3 +45,41 @@ def test_remove_all_favorites():
     service.remove_all_favorites(user_id=1)
 
     assert len(service.get_favorites(user_id=1)) == 0
+
+
+def test_get_favorite_sorted():
+    service = FavoriteService()
+    movie = Movie(id=132, title="The Gorge", release_date="2025-02-13", rating=0)
+
+    service.add_favorite(user_id=1, movie=movie)
+    movie = Movie(id=23, title="Titanic", release_date="2025-01-13", rating=3)
+
+    service.add_favorite(user_id=1, movie=movie)
+    favorites = service.get_favorites_sorted(
+        user_id=1, sort_by=["release_date", "rating"]
+    )
+
+    assert len(favorites) == 2
+    assert favorites[0]["id"] == 23
+    assert favorites[0]["title"] == "Titanic"
+    assert favorites[1]["id"] == 132
+    assert favorites[1]["title"] == "The Gorge"
+
+
+def test_get_favorite_sorted_other():
+    service = FavoriteService()
+    movie = Movie(id=132, title="The Gorge", release_date="2025-02-13", rating=0)
+
+    service.add_favorite(user_id=1, movie=movie)
+    movie = Movie(id=23, title="Titanic", release_date="2025-01-13", rating=3)
+
+    service.add_favorite(user_id=1, movie=movie)
+    favorites = service.get_favorites_sorted(
+        user_id=1, sort_by=["rating", "release_date"]
+    )
+
+    assert len(favorites) == 2
+    assert favorites[0]["id"] == 132
+    assert favorites[0]["title"] == "The Gorge"
+    assert favorites[1]["id"] == 23
+    assert favorites[1]["title"] == "Titanic"

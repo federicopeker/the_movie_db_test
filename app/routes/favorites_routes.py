@@ -77,7 +77,10 @@ class FavoriteMoviesResource(Resource):
                     jsonify({"success": True, "data": cached_response}), 200
                 )
 
-            sorted_favorites = FavoriteService.get_favorites(current_user["id"])
+            sort_by = request.args.get("sort_by", "release_date,rating").split(",")
+            sorted_favorites = FavoriteService.get_favorites_sorted(
+                current_user["id"], sort_by
+            )
 
             if sorted_favorites:
                 cache.cache_response(cache_key, sorted_favorites)

@@ -1,34 +1,88 @@
 openapi: 3.0.0
 info:
-  title: Favorite Movies API
+  title: Movie Database API
   version: 1.0.0
+  description: |
+    A comprehensive API for managing movies and user favorites with:
+    - JWT Authentication
+    - Role-based access control
+    - Redis caching
+    - Sorting and rating capabilities
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
 paths:
-  /movies/favorites:
+  /movies:
+    get:
+      summary: Get popular movies
+      tags:
+        - Movies
+      responses:
+        '200':
+          description: List of popular movies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 123
+                        title:
+                          type: string
+                          example: "Inception"
+                        release_date:
+                          type: string
+                          format: date
+                          example: "2023-01-15"
+                        rating:
+                          type: number
+                          format: float
+                          example: 8.8
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /favorites:
     post:
       summary: Add a movie to favorites
-      tags:
-        - Favorites
+      tags: [Favorites]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - id
-                - title
-                - release_date
+              required: [id, title, release_date]
               properties:
                 id:
                   type: integer
+                  example: 123
                 title:
                   type: string
+                  example: "The Dark Knight"
                 release_date:
                   type: string
                   format: date
+                  example: "2023-05-20"
       responses:
         '201':
-          description: Movie added to favorites
+          description: Movie added successfully
           content:
             application/json:
               schema:
@@ -36,46 +90,37 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "Movie added to favorites"
                   data:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      title:
-                        type: string
-                      release_date:
-                        type: string
-                        format: date
-                      rating:
-                        type: integer
+                    $ref: '#/components/schemas/Movie'
         '400':
-          description: Bad request
+          description: Invalid request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
+
     get:
       summary: Get sorted favorite movies
-      tags:
-        - Favorites
+      tags: [Favorites]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sort_by
+          in: query
+          description: Comma-separated list of sorting fields (release_date, rating)
+          schema:
+            type: string
+            default: "release_date,rating"
       responses:
         '200':
           description: List of favorite movies
@@ -86,43 +131,34 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   data:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        movie_id:
-                          type: integer
-                        release_date:
-                          type: string
-                          format: date
-                        rating:
-                          type: integer
+                      $ref: '#/components/schemas/FavoriteMovie'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
-  /movies/favorites/{movie_id}:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /favorites/{movie_id}:
     delete:
       summary: Remove a movie from favorites
-      tags:
-        - Favorites
+      tags: [Favorites]
+      security:
+        - bearerAuth: []
       parameters:
         - name: movie_id
           in: path
           required: true
           schema:
             type: integer
+            example: 123
       responses:
         '200':
-          description: Movie removed from favorites
+          description: Movie removed successfully
           content:
             application/json:
               schema:
@@ -130,40 +166,42 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "Movie 123 removed from favorites"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
+
     patch:
-      summary: Update the rating of a favorite movie
-      tags:
-        - Favorites
+      summary: Update movie rating
+      tags: [Favorites]
+      security:
+        - bearerAuth: []
       parameters:
         - name: movie_id
           in: path
           required: true
           schema:
             type: integer
+            example: 123
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - rating
+              required: [rating]
               properties:
                 rating:
                   type: integer
+                  minimum: 0
+                  maximum: 5
+                  example: 4
       responses:
         '200':
           description: Rating updated
@@ -174,44 +212,39 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "Rating for movie 123 updated to 4"
         '400':
-          description: Rating not provided
+          description: Invalid rating
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
+
   /admin/users/{user_id}/favorites:
     delete:
-      summary: Remove all favorites for a user
-      tags:
-        - Admin
+      summary: Remove all favorites for a user (Admin only)
+      tags: [Admin]
+      security:
+        - bearerAuth: []
       parameters:
         - name: user_id
           in: path
           required: true
           schema:
             type: integer
+            example: 2
       responses:
         '200':
-          description: All favorites removed
+          description: Favorites cleared
           content:
             application/json:
               schema:
@@ -219,16 +252,62 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "All favorites for user 2 removed"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        title:
+          type: string
+          example: "Inception"
+        release_date:
+          type: string
+          format: date
+          example: "2023-05-20"
+        rating:
+          type: integer
+          example: 0
+
+    FavoriteMovie:
+      type: object
+      properties:
+        movie_id:
+          type: integer
+          example: 123
+        release_date:
+          type: string
+          format: date
+          example: "2023-05-20"
+        rating:
+          type: integer
+          example: 4
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid rating value"
