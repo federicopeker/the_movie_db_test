@@ -9,7 +9,7 @@ from app.utils.cache import Cache
 
 class FavoriteMoviesResource(Resource):
     @token_required("USER")
-    def post(self, current_user, movie_id):
+    def post(self, current_user):
         data = request.get_json()
         release_date = data.get("release_date")
         movie_id = data.get("movie_id")
