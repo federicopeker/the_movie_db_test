@@ -1,3 +1,4 @@
+import time
 from unittest.mock import patch
 
 import pytest
@@ -8,8 +9,9 @@ from app.config import Config
 USER_TOKEN = "1234567890"
 ADMIN_TOKEN = "abcdef1234567890"
 HEADERS_USER = {"Authorization": f"Bearer {USER_TOKEN}"}
+ID_USER = 2
 HEADERS_ADMIN = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
-FAVORITES_URL = "/movies/favorites"
+FAVORITES_URL = "/favorites"
 
 
 @pytest.fixture(scope="module")
@@ -217,13 +219,29 @@ def test_get_favorites_with_cache(client, redis_client):
     )
     response = client.get(FAVORITES_URL, headers=HEADERS_USER)
     assert response.status_code == 200
-    assert response.json.get("success")
-    assert response.json.get("success")
 
     response = client.get(FAVORITES_URL, headers=HEADERS_USER)
     assert response.status_code == 200
     assert response.json.get("success")
     assert isinstance(response.json["data"], list)
+    cache_key = f"favorites_{ID_USER}"
+    assert redis_client.exists(cache_key) == 1
+
+
+def test_cache_expiration(client, redis_client):
+    data = {"release_date": "2022-01-01", "title": "Test Movie", "id": 10}
+    client.post(
+        FAVORITES_URL, json=data, headers=HEADERS_USER,
+    )
+    client.get(FAVORITES_URL, headers=HEADERS_USER)
+    cache_key = f"favorites_{ID_USER}"
+
+    initial_ttl = redis_client.ttl(cache_key)
+    assert initial_ttl > 0  # TTL is set
+
+    # Wait for expiration (adjust based on TTL)
+    time.sleep(initial_ttl + 1)
+    assert redis_client.exists(cache_key) == 0  # Cache expired
 
 
 def test_remove_all_favorites_internal_server_error(client):
@@ -233,7 +251,9 @@ def test_remove_all_favorites_internal_server_error(client):
         mock_service.side_effect = Exception(
             "FavoriteService.remove_all_favorites failed"
         )
-        response = client.delete("/admin/users/2/favorites", headers=HEADERS_ADMIN)
+        response = client.delete(
+            f"/admin/users/{ID_USER}/favorites", headers=HEADERS_ADMIN
+        )
 
         assert response.status_code == 500
         assert response.json == {"success": False, "error": "Internal Server Error"}

@@ -66,13 +66,13 @@ All API endpoints require JWT authentication using a Bearer token in the `Author
 
 #### 1. Retrieve Favorite Movies
 ```bash
-curl --location 'http://127.0.0.1:5000/movies/favorites' \
+curl --location 'http://127.0.0.1:5000/favorites' \
 --header 'Authorization: Bearer <your_token>'
 ```
 
 #### 2. Add a Movie to Favorites
 ```bash
-curl --location 'http://127.0.0.1:5000/movies/favorites' \
+curl --location 'http://127.0.0.1:5000/favorites' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <your_token>' \
 --data '{
@@ -84,13 +84,13 @@ curl --location 'http://127.0.0.1:5000/movies/favorites' \
 
 #### 3. Remove a Movie from Favorites
 ```bash
-curl --location --request DELETE 'http://127.0.0.1:5000/movies/favorites/3423' \
+curl --location --request DELETE 'http://127.0.0.1:5000/favorites/3423' \
 --header 'Authorization: Bearer <your_token>'
 ```
 
 #### 4. Update Movie Rating
 ```bash
-curl --location --request PATCH 'http://127.0.0.1:5000/movies/favorites/343245323' \
+curl --location --request PATCH 'http://127.0.0.1:5000/favorites/343245323' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <your_token>' \
 --data '{
@@ -106,7 +106,7 @@ curl --location --request DELETE 'http://127.0.0.1:5000/admin/users/2/favorites'
 
 #### 6. Retrieve Popular Movies
 ```bash
-curl --location 'http://127.0.0.1:5000/movies/popular'
+curl --location 'http://127.0.0.1:5000/movies'
 ```
 
 ---
