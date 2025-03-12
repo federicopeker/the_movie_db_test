@@ -20,7 +20,7 @@ def test_valid_token_returns_200(client):
         "/movies/favorites", headers={"Authorization": "Bearer 1234567890"}
     )
     assert response.status_code == 200
-    assert "result" in response.json.keys()
+    assert response.json.get("success")
 
 
 def test_unauthorized_role_returns_403(client):
