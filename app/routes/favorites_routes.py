@@ -100,6 +100,9 @@ class FavoriteMoviesResource(Resource):
                 raise BadRequest("Missing required field: 'rating'")
 
             new_rating = data["rating"]
+            if not isinstance(new_rating, int) or not (0 <= new_rating <= 5):
+                raise BadRequest("Rating must be an integer between 0 and 5")
+
             FavoriteService.update_rating(current_user["id"], movie_id, new_rating)
 
             return make_response(

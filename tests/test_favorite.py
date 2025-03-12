@@ -133,11 +133,11 @@ def test_update_rating(client):
         FAVORITES_URL, json=data, headers=HEADERS_USER,
     )
     response = client.patch(
-        f"{FAVORITES_URL}/10", json={"rating": 8}, headers=HEADERS_USER,
+        f"{FAVORITES_URL}/10", json={"rating": 3}, headers=HEADERS_USER,
     )
     assert response.status_code == 200
     assert response.json.get("success")
-    assert response.json.get("message") == "Rating for movie 10 updated to 8"
+    assert response.json.get("message") == "Rating for movie 10 updated to 3"
 
 
 def test_update_favorite_without_rating(client):
@@ -147,6 +147,38 @@ def test_update_favorite_without_rating(client):
     assert (
         response.json.get("error")
         == "400 Bad Request: Missing required field: 'rating'"
+    )
+
+
+def test_update_favorite_with_rating_negative(client):
+    data = {"release_date": "2022-01-01", "title": "Test Movie", "id": 10}
+    client.post(
+        FAVORITES_URL, json=data, headers=HEADERS_USER,
+    )
+    response = client.patch(
+        f"{FAVORITES_URL}/10", json={"rating": -1}, headers=HEADERS_USER,
+    )
+    assert response.status_code == 400
+    assert not response.json.get("success")
+    assert (
+        response.json.get("error")
+        == "400 Bad Request: Rating must be an integer between 0 and 5"
+    )
+
+
+def test_update_favorite_with_rating_greather_5(client):
+    data = {"release_date": "2022-01-01", "title": "Test Movie", "id": 10}
+    client.post(
+        FAVORITES_URL, json=data, headers=HEADERS_USER,
+    )
+    response = client.patch(
+        f"{FAVORITES_URL}/10", json={"rating": 6}, headers=HEADERS_USER,
+    )
+    assert response.status_code == 400
+    assert not response.json.get("success")
+    assert (
+        response.json.get("error")
+        == "400 Bad Request: Rating must be an integer between 0 and 5"
     )
 
 
@@ -160,7 +192,7 @@ def test_update_favorite_internal_server_error(client):
             FAVORITES_URL, json=data, headers=HEADERS_USER,
         )
         response = client.patch(
-            f"{FAVORITES_URL}/10", json={"rating": 8}, headers=HEADERS_USER,
+            f"{FAVORITES_URL}/10", json={"rating": 4}, headers=HEADERS_USER,
         )
 
         assert response.status_code == 500
