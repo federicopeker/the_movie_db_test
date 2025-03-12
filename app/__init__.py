@@ -14,8 +14,12 @@ def create_app():
     api = Api(app)
 
     api.add_resource(MoviesResource, "/movies")
-    api.add_resource(FavoriteMoviesResource, "/favorites", endpoint="favorites")
-    api.add_resource(FavoriteMoviesResource, "/favorites/<int:movie_id>")
+    api.add_resource(
+        FavoriteMoviesResource, "/users/<int:user_id>/favorites", endpoint="favorites"
+    )
+    api.add_resource(
+        FavoriteMoviesResource, "/users/<int:user_id>/favorites/<int:movie_id>"
+    )
     api.add_resource(
         AdminFavoriteMoviesResource, "/admin/users/<int:user_id>/favorites"
     )

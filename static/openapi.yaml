@@ -45,10 +45,6 @@ paths:
                           type: string
                           format: date
                           example: "2023-01-15"
-                        rating:
-                          type: number
-                          format: float
-                          example: 8.8
         '500':
           description: Internal server error
           content:
@@ -56,12 +52,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /favorites:
+  /users/{user_id}/favorites:
     post:
       summary: Add a movie to favorites
       tags: [Favorites]
       security:
         - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
       requestBody:
         required: true
         content:
@@ -102,6 +105,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -115,6 +124,12 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
         - name: sort_by
           in: query
           description: Comma-separated list of sorting fields (release_date, rating)
@@ -136,6 +151,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/FavoriteMovie'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -143,13 +164,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /favorites/{movie_id}:
+  /users/{user_id}/favorites/{movie_id}:
     delete:
       summary: Remove a movie from favorites
       tags: [Favorites]
       security:
         - bearerAuth: []
       parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
         - name: movie_id
           in: path
           required: true
@@ -170,6 +197,12 @@ paths:
                   message:
                     type: string
                     example: "Movie 123 removed from favorites"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal server error
           content:
@@ -183,6 +216,12 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
         - name: movie_id
           in: path
           required: true
@@ -218,6 +257,12 @@ paths:
                     example: "Rating for movie 123 updated to 4"
         '400':
           description: Invalid rating
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
           content:
             application/json:
               schema:

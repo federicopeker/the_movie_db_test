@@ -6,7 +6,8 @@ ADMIN_TOKEN = "abcdef1234567890"
 HEADERS_USER = {"Authorization": f"Bearer {USER_TOKEN}"}
 ID_USER = 2
 HEADERS_ADMIN = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
-FAVORITES_URL = "/favorites"
+FAVORITES_URL = f"/users/{ID_USER}/favorites"
+FAVORITES_URL_FORBIDDEN = "/users/999/favorites"
 
 
 def test_add_favorite(client):
@@ -23,6 +24,13 @@ def test_add_favorite_without_data(client):
     assert response.status_code == 400
     assert not response.json.get("success")
     assert response.json.get("error") == "400 Bad Request: Request body is missing"
+
+
+def test_add_favorite_raise_forbidden(client):
+    response = client.post(FAVORITES_URL_FORBIDDEN, json={}, headers=HEADERS_USER,)
+    assert response.status_code == 403
+    assert not response.json.get("success")
+    assert response.json.get("error") == "Forbidden"
 
 
 def test_add_favorite_without_title(client):
@@ -83,6 +91,13 @@ def test_remove_favorite(client):
     assert response.json.get("message") == "Movie 10 removed from favorites"
 
 
+def test_remove_favorite_raise_forbidden(client):
+    response = client.delete(f"{FAVORITES_URL_FORBIDDEN}/10", headers=HEADERS_USER)
+    assert response.status_code == 403
+    assert not response.json.get("success")
+    assert response.json.get("error") == "Forbidden"
+
+
 def test_remove_favorite_internal_server_error(client):
     with patch(
         "app.services.favorite_service.FavoriteService.remove_favorite"
@@ -99,6 +114,13 @@ def test_get_sorted_favorites(client):
     assert response.status_code == 200
     assert response.json.get("success")
     assert isinstance(response.json["data"], list)
+
+
+def test_get_sorted_favorites_raise_forbidden(client):
+    response = client.get(FAVORITES_URL_FORBIDDEN, headers=HEADERS_USER)
+    assert response.status_code == 403
+    assert not response.json.get("success")
+    assert response.json.get("error") == "Forbidden"
 
 
 def test_get_sorted_favorites_internal_server_error(client):
@@ -123,6 +145,15 @@ def test_update_rating(client):
     assert response.status_code == 200
     assert response.json.get("success")
     assert response.json.get("message") == "Rating for movie 10 updated to 3"
+
+
+def test_update_rating_raise_forbidden(client):
+    response = client.patch(
+        f"{FAVORITES_URL_FORBIDDEN}/10", json={"rating": 3}, headers=HEADERS_USER,
+    )
+    assert response.status_code == 403
+    assert not response.json.get("success")
+    assert response.json.get("error") == "Forbidden"
 
 
 def test_update_favorite_without_rating(client):

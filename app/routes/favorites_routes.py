@@ -10,8 +10,10 @@ from app.utils.cache import Cache
 
 class FavoriteMoviesResource(Resource):
     @token_required("USER")
-    def post(self, current_user):
+    def post(self, current_user, user_id):
         """Add a movie to favorites"""
+        if current_user["id"] != user_id:
+            return make_response(jsonify({"success": False, "error": "Forbidden"}), 403)
         try:
             data = request.get_json()
             if not data:
@@ -44,8 +46,10 @@ class FavoriteMoviesResource(Resource):
             )
 
     @token_required("USER")
-    def delete(self, current_user, movie_id):
+    def delete(self, current_user, user_id, movie_id):
         """Remove a movie from favorites"""
+        if current_user["id"] != user_id:
+            return make_response(jsonify({"success": False, "error": "Forbidden"}), 403)
         try:
             FavoriteService.remove_favorite(current_user["id"], movie_id)
 
@@ -65,8 +69,10 @@ class FavoriteMoviesResource(Resource):
             )
 
     @token_required("USER")
-    def get(self, current_user):
+    def get(self, current_user, user_id):
         """Get the user's favorite movies"""
+        if current_user["id"] != user_id:
+            return make_response(jsonify({"success": False, "error": "Forbidden"}), 403)
         try:
             cache = Cache()
             cache_key = f"favorites_{current_user['id']}"
@@ -95,8 +101,10 @@ class FavoriteMoviesResource(Resource):
             )
 
     @token_required("USER")
-    def patch(self, current_user, movie_id):
+    def patch(self, current_user, user_id, movie_id):
         """Update the rating of a favorite movie"""
+        if current_user["id"] != user_id:
+            return make_response(jsonify({"success": False, "error": "Forbidden"}), 403)
         try:
             data = request.get_json()
             if not data or "rating" not in data:
