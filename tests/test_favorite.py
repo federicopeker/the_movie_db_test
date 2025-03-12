@@ -1,29 +1,12 @@
 import time
 from unittest.mock import patch
 
-import pytest
-import redis
-
-from app.config import Config
-
 USER_TOKEN = "1234567890"
 ADMIN_TOKEN = "abcdef1234567890"
 HEADERS_USER = {"Authorization": f"Bearer {USER_TOKEN}"}
 ID_USER = 2
 HEADERS_ADMIN = {"Authorization": f"Bearer {ADMIN_TOKEN}"}
 FAVORITES_URL = "/favorites"
-
-
-@pytest.fixture(scope="module")
-def redis_client():
-    client = redis.StrictRedis.from_url(Config.REDIS_URL)
-    yield client
-    client.flushall()
-
-
-@pytest.fixture(scope="function", autouse=True)
-def clear_cache(redis_client):
-    redis_client.flushall()
 
 
 def test_add_favorite(client):

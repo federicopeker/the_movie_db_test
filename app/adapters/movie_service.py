@@ -13,4 +13,5 @@ class MovieService:
             params={"api_key": Config.API_KEY},
         )
         response.raise_for_status()
-        return response.json()
+        data = response.json()
+        return data.get("results") if data.get("results") else []
