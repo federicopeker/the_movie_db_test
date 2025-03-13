@@ -72,36 +72,41 @@ curl --location 'http://127.0.0.1:5000/favorites' \
 
 #### 2. Add a Movie to Favorites
 ```bash
-curl --location 'http://127.0.0.1:5000/favorites' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer <your_token>' \
---data '{
-  "release_date": "2025-03-12",
-  "id": 1234,
-  "title": "Gladiator"
+curl -X 'POST' \
+  'http://localhost:5000/users/2/favorites' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer <your_token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": 123,
+  "title": "The Dark Knight",
+  "release_date": "2018-05-20"
 }'
 ```
 
 #### 3. Remove a Movie from Favorites
 ```bash
-curl --location --request DELETE 'http://127.0.0.1:5000/favorites/3423' \
---header 'Authorization: Bearer <your_token>'
+  curl -X 'DELETE' \
+  'http://localhost:5000/users/2/favorites/123' \
+  -H 'Authorization: Bearer <your_token>'
 ```
 
 #### 4. Update Movie Rating
 ```bash
-curl --location --request PATCH 'http://127.0.0.1:5000/favorites/343245323' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer <your_token>' \
---data '{
-  "rating": 9
-}'
+curl -X 'PATCH' \
+  'http://localhost:5000/users/2/favorites/123' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer <your_token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "rating": 4
+}''
 ```
 
 #### 5. Admin: Delete All Movies by User ID
 ```bash
-curl --location --request DELETE 'http://127.0.0.1:5000/admin/users/2/favorites' \
---header 'Authorization: Bearer <admin_token>'
+curl -X 'DELETE' 'http://127.0.0.1:5000/admin/users/2/favorites' \
+  -H 'Authorization: Bearer <your_token>' \
 ```
 
 #### 6. Retrieve Popular Movies
